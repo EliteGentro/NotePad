@@ -15,7 +15,7 @@ const AUTOSAVE_DELAY = 1000;
 
 function loadSavedContent(): string {
     try {
-        return localStorage.getItem(STORAGE_KEY) || '';
+        return sessionStorage.getItem(STORAGE_KEY) || '';
     } catch {
         return '';
     }
@@ -59,7 +59,7 @@ export function TextMode({ exportRef, onTextChange }: TextModeProps) {
             // Debounced autosave
             if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
             saveTimerRef.current = setTimeout(() => {
-                try { localStorage.setItem(STORAGE_KEY, html); } catch { /* ignore */ }
+                try { sessionStorage.setItem(STORAGE_KEY, html); } catch { /* ignore */ }
             }, AUTOSAVE_DELAY);
         },
     });
@@ -78,7 +78,7 @@ export function TextMode({ exportRef, onTextChange }: TextModeProps) {
                 getHtmlId: () => 'text-editor-container',
                 clear: () => {
                     editor.commands.clearContent(true);
-                    try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+                    try { sessionStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
                 },
             };
         }
