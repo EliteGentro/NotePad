@@ -5,94 +5,51 @@ import {
     List, ListOrdered, Heading1, Heading2, Heading3,
     Highlighter, Palette, Quote
 } from 'lucide-react';
+import { ToolbarButton, ToolbarDivider } from '../common/ToolbarButton';
 
 export function TextToolbar({ editor }: { editor: Editor | null }) {
     if (!editor) return null;
 
-    const toggleBold = () => editor.chain().focus().toggleBold().run();
-    const toggleItalic = () => editor.chain().focus().toggleItalic().run();
-    const toggleUnderline = () => editor.chain().focus().toggleUnderline().run();
-    const toggleStrike = () => editor.chain().focus().toggleStrike().run();
-
-    // Alignment
-    const setAlignLeft = () => editor.chain().focus().setTextAlign('left').run();
-    const setAlignCenter = () => editor.chain().focus().setTextAlign('center').run();
-    const setAlignRight = () => editor.chain().focus().setTextAlign('right').run();
-    const setAlignJustify = () => editor.chain().focus().setTextAlign('justify').run();
-
-    // Headings
-    const toggleH1 = () => editor.chain().focus().toggleHeading({ level: 1 }).run();
-    const toggleH2 = () => editor.chain().focus().toggleHeading({ level: 2 }).run();
-    const toggleH3 = () => editor.chain().focus().toggleHeading({ level: 3 }).run();
-
-    // Lists
-    const toggleBullet = () => editor.chain().focus().toggleBulletList().run();
-    const toggleOrdered = () => editor.chain().focus().toggleOrderedList().run();
-
-    // Blockquote
-    const toggleQuote = () => editor.chain().focus().toggleBlockquote().run();
-
-    // Colors & Highlight
-    const setHighlight = () => editor.chain().focus().toggleHighlight().run();
-
-    // Color picker can just be a native color input that sets the property
-    const handleColorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        editor.chain().focus().setColor(e.target.value).run();
-    };
-
-    const Divider = () => <div className="w-px h-6 bg-[var(--border-color)] mx-1"></div>;
-
-    const ToolbarBtn = ({ icon: Icon, action, active, title }: any) => (
-        <button
-            onClick={action}
-            title={title}
-            className={`p-1.5 rounded transition-colors ${active ? 'bg-[var(--accent-bg)] text-[var(--accent-color)]' : 'text-gray-500 hover:text-[var(--text-color)] hover:bg-[var(--toolbar-bg)]'}`}
-        >
-            <Icon size={18} />
-        </button>
-    );
-
     return (
-        <div className="flex flex-wrap items-center gap-1 p-2 bg-[var(--navbar-bg)] border-b border-[var(--border-color)] sticky top-0 z-10 transition-colors duration-200">
+        <div className="flex flex-wrap items-center gap-0.5 p-2 bg-(--navbar-bg) backdrop-blur-sm border-b border-(--border-color) sticky top-0 z-10 transition-colors duration-200">
+            <ToolbarButton icon={Bold} action={() => editor.chain().focus().toggleBold().run()} active={editor.isActive('bold')} title="Bold (Ctrl+B)" />
+            <ToolbarButton icon={Italic} action={() => editor.chain().focus().toggleItalic().run()} active={editor.isActive('italic')} title="Italic (Ctrl+I)" />
+            <ToolbarButton icon={UnderlineIcon} action={() => editor.chain().focus().toggleUnderline().run()} active={editor.isActive('underline')} title="Underline (Ctrl+U)" />
+            <ToolbarButton icon={Strikethrough} action={() => editor.chain().focus().toggleStrike().run()} active={editor.isActive('strike')} title="Strikethrough" />
 
-            <ToolbarBtn icon={Bold} action={toggleBold} active={editor.isActive('bold')} title="Bold" />
-            <ToolbarBtn icon={Italic} action={toggleItalic} active={editor.isActive('italic')} title="Italic" />
-            <ToolbarBtn icon={UnderlineIcon} action={toggleUnderline} active={editor.isActive('underline')} title="Underline" />
-            <ToolbarBtn icon={Strikethrough} action={toggleStrike} active={editor.isActive('strike')} title="Strikethrough" />
+            <ToolbarDivider />
 
-            <Divider />
+            <ToolbarButton icon={Heading1} action={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} active={editor.isActive('heading', { level: 1 })} title="Heading 1" />
+            <ToolbarButton icon={Heading2} action={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} active={editor.isActive('heading', { level: 2 })} title="Heading 2" />
+            <ToolbarButton icon={Heading3} action={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} active={editor.isActive('heading', { level: 3 })} title="Heading 3" />
 
-            <ToolbarBtn icon={Heading1} action={toggleH1} active={editor.isActive('heading', { level: 1 })} title="Heading 1" />
-            <ToolbarBtn icon={Heading2} action={toggleH2} active={editor.isActive('heading', { level: 2 })} title="Heading 2" />
-            <ToolbarBtn icon={Heading3} action={toggleH3} active={editor.isActive('heading', { level: 3 })} title="Heading 3" />
+            <ToolbarDivider />
 
-            <Divider />
+            <ToolbarButton icon={AlignLeft} action={() => editor.chain().focus().setTextAlign('left').run()} active={editor.isActive({ textAlign: 'left' })} title="Align Left" />
+            <ToolbarButton icon={AlignCenter} action={() => editor.chain().focus().setTextAlign('center').run()} active={editor.isActive({ textAlign: 'center' })} title="Align Center" />
+            <ToolbarButton icon={AlignRight} action={() => editor.chain().focus().setTextAlign('right').run()} active={editor.isActive({ textAlign: 'right' })} title="Align Right" />
+            <ToolbarButton icon={AlignJustify} action={() => editor.chain().focus().setTextAlign('justify').run()} active={editor.isActive({ textAlign: 'justify' })} title="Justify" />
 
-            <ToolbarBtn icon={AlignLeft} action={setAlignLeft} active={editor.isActive({ textAlign: 'left' })} title="Align Left" />
-            <ToolbarBtn icon={AlignCenter} action={setAlignCenter} active={editor.isActive({ textAlign: 'center' })} title="Align Center" />
-            <ToolbarBtn icon={AlignRight} action={setAlignRight} active={editor.isActive({ textAlign: 'right' })} title="Align Right" />
-            <ToolbarBtn icon={AlignJustify} action={setAlignJustify} active={editor.isActive({ textAlign: 'justify' })} title="Justify" />
+            <ToolbarDivider />
 
-            <Divider />
+            <ToolbarButton icon={List} action={() => editor.chain().focus().toggleBulletList().run()} active={editor.isActive('bulletList')} title="Bullet List" />
+            <ToolbarButton icon={ListOrdered} action={() => editor.chain().focus().toggleOrderedList().run()} active={editor.isActive('orderedList')} title="Numbered List" />
+            <ToolbarButton icon={Quote} action={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} title="Blockquote" />
 
-            <ToolbarBtn icon={List} action={toggleBullet} active={editor.isActive('bulletList')} title="Bullet List" />
-            <ToolbarBtn icon={ListOrdered} action={toggleOrdered} active={editor.isActive('orderedList')} title="Numbered List" />
-            <ToolbarBtn icon={Quote} action={toggleQuote} active={editor.isActive('blockquote')} title="Blockquote" />
+            <ToolbarDivider />
 
-            <Divider />
+            <ToolbarButton icon={Highlighter} action={() => editor.chain().focus().toggleHighlight().run()} active={editor.isActive('highlight')} title="Highlight" />
 
-            <ToolbarBtn icon={Highlighter} action={setHighlight} active={editor.isActive('highlight')} title="Highlight" />
-
-            <div className="relative flex items-center p-1 cursor-pointer rounded hover:bg-[var(--toolbar-bg)]" title="Text Color">
-                <Palette size={18} className="text-gray-500 hover:text-[var(--text-color)]" />
+            <div className="relative flex items-center p-1.5 cursor-pointer rounded-md hover:bg-(--toolbar-bg) transition-colors duration-150" title="Text Color">
+                <Palette size={18} className="text-[color-mix(in_srgb,var(--text-color)_50%,transparent)] hover:text-(--text-color)" />
                 <input
                     type="color"
-                    onChange={handleColorChange}
+                    onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
                     className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
                     value={editor.getAttributes('textStyle').color || '#000000'}
+                    aria-label="Text color"
                 />
             </div>
-
         </div>
     );
 }

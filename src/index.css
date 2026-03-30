@@ -17,8 +17,8 @@
 .dark {
   --bg-color: #0f172a;
   --text-color: #f8fafc;
-  --border-color: #334155;
-  --navbar-bg: rgba(15, 23, 42, 0.85);
+  --border-color: #1e293b;
+  --navbar-bg: rgba(15, 23, 42, 0.9);
   --toolbar-bg: #1e293b;
   --accent-color: #818cf8;
   --accent-hover: #a5b4fc;
@@ -36,6 +36,15 @@ body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Base Editor Styles */

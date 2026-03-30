@@ -39,7 +39,7 @@ export const MarkdownEditor = forwardRef<MarkdownEditorRef, { value: string, onC
     }));
 
     return (
-        <div className="h-full w-full overflow-y-auto text-left bg-[var(--editor-bg)] custom-scrollbar">
+        <div className="h-full w-full overflow-y-auto text-left bg-(--editor-bg)">
             <CodeMirror
                 ref={editorRef}
                 value={value}
