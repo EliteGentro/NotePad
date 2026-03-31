@@ -24,7 +24,7 @@ interface MarkdownModeProps {
 export function MarkdownMode({ exportRef, onTextChange }: MarkdownModeProps) {
     const [content, setContent] = useState(loadSavedContent);
     const editorRef = useRef<MarkdownEditorRef>(null);
-    const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
+    const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
     const latestContent = useRef(content);
     latestContent.current = content;

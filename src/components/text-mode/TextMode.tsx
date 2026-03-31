@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -27,7 +27,7 @@ interface TextModeProps {
 }
 
 export function TextMode({ exportRef, onTextChange }: TextModeProps) {
-    const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
+    const saveTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
     const editor = useEditor({
         extensions: [
