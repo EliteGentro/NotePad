@@ -1,13 +1,14 @@
 import {
-    Heading, Bold, Italic, Code, List, Link as LinkIcon, Quote, ListOrdered, Minus, Image
+    Heading, Bold, Italic, Code, SquareCode, List, Link as LinkIcon, Quote, ListOrdered, Minus, Image, Search
 } from 'lucide-react';
 import { ToolbarButton, ToolbarDivider } from '../common/ToolbarButton';
 
-export function MarkdownToolbar({
-    insertText
-}: {
-    insertText: (before: string, after: string, defaultText: string) => void
-}) {
+interface MarkdownToolbarProps {
+    insertText: (before: string, after: string, defaultText: string) => void;
+    onOpenFind: () => void;
+}
+
+export function MarkdownToolbar({ insertText, onOpenFind }: MarkdownToolbarProps) {
     return (
         <div className="flex flex-wrap items-center gap-0.5 p-2 bg-(--navbar-bg) backdrop-blur-sm border-b border-(--border-color) sticky top-0 z-10 transition-colors duration-200">
             <ToolbarButton icon={Heading} action={() => insertText('### ', '', 'Heading')} title="Heading" />
@@ -17,7 +18,7 @@ export function MarkdownToolbar({
             <ToolbarDivider />
 
             <ToolbarButton icon={Code} action={() => insertText('`', '`', 'code')} title="Inline Code" />
-            <ToolbarButton icon={Code} action={() => insertText('\n```\n', '\n```\n', 'code block')} title="Code Block" />
+            <ToolbarButton icon={SquareCode} action={() => insertText('\n```\n', '\n```\n', 'code block')} title="Code Block" />
 
             <ToolbarDivider />
 
@@ -30,6 +31,10 @@ export function MarkdownToolbar({
             <ToolbarButton icon={LinkIcon} action={() => insertText('[', '](url)', 'link text')} title="Link" />
             <ToolbarButton icon={Image} action={() => insertText('![', '](url)', 'alt text')} title="Image" />
             <ToolbarButton icon={Minus} action={() => insertText('\n---\n', '', '')} title="Horizontal Rule" />
+
+            <ToolbarDivider />
+
+            <ToolbarButton icon={Search} action={onOpenFind} title="Find & replace (Ctrl+F)" />
         </div>
     );
 }

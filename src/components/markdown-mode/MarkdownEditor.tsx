@@ -1,15 +1,27 @@
-import { forwardRef, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useImperativeHandle, useRef, type UIEvent } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import type { ReactCodeMirrorRef } from '@uiw/react-codemirror';
 import { markdown, markdownLanguage } from '@codemirror/lang-markdown';
 import { languages } from '@codemirror/language-data';
-import { useTheme } from '../common/ThemeContext';
+import { openSearchPanel } from '@codemirror/search';
+import { useTheme } from '../common/theme';
 
 export interface MarkdownEditorRef {
     insertText: (before: string, after: string, defaultText: string) => void;
+    openSearch: () => void;
 }
 
-export const MarkdownEditor = forwardRef<MarkdownEditorRef, { value: string, onChange: (val: string) => void }>(({ value, onChange }, ref) => {
+interface MarkdownEditorProps {
+    value: string;
+    onChange: (val: string) => void;
+    /** Scroll position as a 0–1 ratio, for syncing the preview. */
+    onScrollRatio?: (ratio: number) => void;
+}
+
+// Stable reference so CodeMirror doesn't reconfigure on every render.
+const extensions = [markdown({ base: markdownLanguage, codeLanguages: languages })];
+
+export const MarkdownEditor = forwardRef<MarkdownEditorRef, MarkdownEditorProps>(({ value, onChange, onScrollRatio }, ref) => {
     const editorRef = useRef<ReactCodeMirrorRef>(null);
     const { theme } = useTheme();
 
@@ -35,19 +47,29 @@ export const MarkdownEditor = forwardRef<MarkdownEditorRef, { value: string, onC
                 }
             });
             view.focus();
-        }
+        },
+        openSearch: () => {
+            const view = editorRef.current?.view;
+            if (view) openSearchPanel(view);
+        },
     }));
 
+    // Capture phase: scroll events don't bubble, and the scrolling element may be
+    // CodeMirror's internal scroller or this wrapper depending on content height.
+    const handleScroll = (e: UIEvent<HTMLDivElement>) => {
+        const el = e.target as HTMLElement;
+        const max = el.scrollHeight - el.clientHeight;
+        onScrollRatio?.(max > 0 ? el.scrollTop / max : 0);
+    };
+
     return (
-        <div className="h-full w-full overflow-y-auto text-left bg-(--editor-bg)">
+        <div className="h-full w-full overflow-y-auto text-left bg-(--editor-bg)" onScrollCapture={handleScroll}>
             <CodeMirror
                 ref={editorRef}
                 value={value}
                 minHeight="100%"
                 theme={theme === 'dark' ? 'dark' : 'light'}
-                extensions={[
-                    markdown({ base: markdownLanguage, codeLanguages: languages })
-                ]}
+                extensions={extensions}
                 onChange={onChange}
                 className="text-[1.05rem] cm-container h-full"
                 basicSetup={{

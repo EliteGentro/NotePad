@@ -1,73 +1,58 @@
-# React + TypeScript + Vite
+# NotePad
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A browser notepad with two editors:
 
-Currently, two official plugins are available:
+- **Text mode**: rich-text editing with headings, lists, alignment, colors, highlight, and find & replace (Tiptap / ProseMirror).
+- **Markdown mode**: a Markdown source editor with a live preview that scrolls with it (CodeMirror + react-markdown).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+- **Multiple documents**: tabs above the editor. Each tab is titled from its first line. Closing a tab can be undone.
+- **Autosave**: saves 1 second after you stop typing, and also when you switch documents or modes or close the tab.
+- **Where notes are kept** (toggle in the status bar):
+  - *This tab only* (default): notes live in `sessionStorage`. They survive a reload but are lost when the tab closes, and the browser asks before closing a tab that has notes.
+  - *Kept on device*: notes live in `localStorage` and survive closing the browser.
+- **Open** `.txt` / `.md` files. Each file opens in a new document. In Text mode, Markdown is converted to rich text.
+- **Export** to `.txt`, `.md` (Text mode converts to Markdown), or PDF (always printed in light colors).
+- **Copy as plain text**: one line per line, with list markers (`- `, `1. `) kept.
+- **Clear document**, with undo.
+- **Theme**: Light, Dark, or System (follows the OS).
+- **Focus mode**: hides the chrome around the editor.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Keyboard shortcuts
 
-## Expanding the ESLint configuration
+| Shortcut | Action |
+| --- | --- |
+| `Ctrl/Cmd + F` | Find & replace in the current editor |
+| `Ctrl/Cmd + Shift + F` | Toggle focus mode |
+| `Esc` | Exit focus mode / close find bar |
+| `Ctrl/Cmd + Shift + E` | Export as `.txt` |
+| `Ctrl/Cmd + B / I / U` | Bold / italic / underline |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Development
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev        # start Vite dev server
+npm test           # run unit tests (Vitest)
+npm run lint       # ESLint
+npm run build      # typecheck + production build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Project layout
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+  App.tsx                     app shell: documents, export/import, shortcuts, toasts
+  types.ts                    shared types (EditorHandle, modes, formats)
+  components/
+    common/                   Navbar, StatusBar, DocumentTabs, Toast, theme
+    text-mode/                Tiptap editor, toolbar, find & replace
+    markdown-mode/            CodeMirror editor, preview, toolbar
+  hooks/                      useDocuments, useDocumentStats, useLocalStorage
+  utils/
+    storage.ts                session vs device storage, document keys
+    plainText.ts              ProseMirror → plain text (clipboard, export, stats)
+    importUtils.ts            file import helpers, document titles
+    exportUtils.ts            file download, PDF export
 ```

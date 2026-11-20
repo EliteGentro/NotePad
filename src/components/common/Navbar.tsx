@@ -1,20 +1,35 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { useTheme } from './ThemeContext';
-import { Moon, Sun, Download, FileText, FileCode, Maximize, Minimize, Trash2 } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback, type ChangeEvent } from 'react';
+import { useTheme, type ThemePreference } from './theme';
+import { Moon, Sun, Monitor, Download, FileText, FileCode, FolderOpen, Maximize, Minimize, Trash2 } from 'lucide-react';
+import type { EditorMode, ExportFormat } from '../../types';
+import { IMPORT_ACCEPT } from '../../utils/importUtils';
+
+const THEME_LABELS: Record<ThemePreference, string> = { light: 'Light', dark: 'Dark', system: 'System' };
+const THEME_ICONS = { light: Sun, dark: Moon, system: Monitor } as const;
+const NEXT_THEME: Record<ThemePreference, ThemePreference> = { light: 'dark', dark: 'system', system: 'light' };
 
 interface NavbarProps {
-    mode: 'text' | 'markdown';
-    setMode: (mode: 'text' | 'markdown') => void;
-    onExport: (format: 'txt' | 'md' | 'pdf') => void;
+    mode: EditorMode;
+    setMode: (mode: EditorMode) => void;
+    onExport: (format: ExportFormat) => void;
+    onOpenFile: (file: File) => void;
     onClear: () => void;
     focusMode: boolean;
     onToggleFocusMode: () => void;
 }
 
-export function Navbar({ mode, setMode, onExport, onClear, focusMode, onToggleFocusMode }: NavbarProps) {
-    const { theme, toggleTheme } = useTheme();
+export function Navbar({ mode, setMode, onExport, onOpenFile, onClear, focusMode, onToggleFocusMode }: NavbarProps) {
+    const { preference, cyclePreference } = useTheme();
+    const ThemeIcon = THEME_ICONS[preference];
     const [exportOpen, setExportOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        e.target.value = ''; // allow re-opening the same file
+        if (file) onOpenFile(file);
+    };
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -33,7 +48,7 @@ export function Navbar({ mode, setMode, onExport, onClear, focusMode, onToggleFo
 
     const exportOptions = [
         { format: 'txt' as const, icon: FileText, label: 'Plain Text (.txt)' },
-        { format: 'md' as const, icon: FileCode, label: 'Markdown (.md)' },
+        { format: 'md' as const, icon: FileCode, label: mode === 'text' ? 'Markdown (converted, .md)' : 'Markdown (.md)' },
         { format: 'pdf' as const, icon: Download, label: 'PDF Document (.pdf)' },
     ];
 
@@ -77,12 +92,23 @@ export function Navbar({ mode, setMode, onExport, onClear, focusMode, onToggleFo
 
             {/* Actions */}
             <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                {/* Open file */}
+                <input ref={fileInputRef} type="file" accept={IMPORT_ACCEPT} onChange={handleFileChange} className="hidden" />
+                <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="p-2 rounded-lg cursor-pointer hover:bg-(--toolbar-bg) text-[color-mix(in_srgb,var(--text-color)_50%,transparent)] hover:text-(--text-color) transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-color) border border-transparent hover:border-(--border-color)"
+                    aria-label="Open a .txt or .md file"
+                    title="Open .txt / .md file (opens in a new document)"
+                >
+                    <FolderOpen size={17} />
+                </button>
+
                 {/* Clear button */}
                 <button
                     onClick={onClear}
                     className="p-2 rounded-lg cursor-pointer hover:bg-red-500/10 text-[color-mix(in_srgb,var(--text-color)_50%,transparent)] hover:text-red-500 transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 border border-transparent hover:border-red-500/20"
-                    aria-label="Clear all content"
-                    title="Clear all content"
+                    aria-label="Clear document"
+                    title="Clear document (can be undone)"
                 >
                     <Trash2 size={17} />
                 </button>
@@ -112,7 +138,7 @@ export function Navbar({ mode, setMode, onExport, onClear, focusMode, onToggleFo
 
                     {exportOpen && (
                         <div
-                            className="absolute right-0 mt-1.5 w-48 bg-(--bg-color) rounded-lg shadow-lg border border-(--border-color) py-1 overflow-hidden z-50"
+                            className="absolute right-0 mt-1.5 w-56 bg-(--bg-color) rounded-lg shadow-lg border border-(--border-color) py-1 overflow-hidden z-50"
                             role="menu"
                         >
                             {exportOptions.map(({ format, icon: Icon, label }) => (
@@ -132,13 +158,14 @@ export function Navbar({ mode, setMode, onExport, onClear, focusMode, onToggleFo
 
                 <div className="w-px h-5 bg-(--border-color)" />
 
-                {/* Theme toggle */}
+                {/* Theme: light → dark → system */}
                 <button
-                    onClick={toggleTheme}
+                    onClick={cyclePreference}
                     className="p-2 rounded-lg cursor-pointer hover:bg-(--toolbar-bg) text-[color-mix(in_srgb,var(--text-color)_50%,transparent)] hover:text-(--text-color) transition-colors duration-150 border border-transparent hover:border-(--border-color) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-color)"
-                    aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                    aria-label={`Theme: ${THEME_LABELS[preference]}. Switch to ${THEME_LABELS[NEXT_THEME[preference]]}`}
+                    title={`Theme: ${THEME_LABELS[preference]} (click for ${THEME_LABELS[NEXT_THEME[preference]]})`}
                 >
-                    {theme === 'light' ? <Moon size={17} /> : <Sun size={17} />}
+                    <ThemeIcon size={17} />
                 </button>
             </div>
         </nav>

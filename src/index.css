@@ -50,7 +50,6 @@ body {
 /* Base Editor Styles */
 .ProseMirror {
   outline: none;
-  min-height: calc(100vh - 180px);
   padding: 2.5rem 3rem;
   background: var(--editor-bg);
   box-shadow: var(--shadow-sm);
@@ -88,6 +87,39 @@ body {
 .ProseMirror hr { border: none; border-top: 2px solid var(--border-color); margin: 2rem 0; }
 .ProseMirror mark { background-color: #fef08a; padding: 0.1em 0.2em; border-radius: 0.25em; color: #000; }
 .ProseMirror img { max-width: 100%; border-radius: 0.5rem; }
+
+/* Text mode: the page fills the visible editor area (flex) instead of a fixed 100vh calc */
+.text-editor-host > .ProseMirror {
+  flex: 1;
+}
+
+/* Find & replace highlights (text mode) */
+.ProseMirror .search-match {
+  background-color: rgb(250 204 21 / 0.35);
+  border-radius: 0.15em;
+}
+.ProseMirror .search-match-current {
+  background-color: rgb(249 115 22 / 0.55);
+  outline: 1px solid rgb(249 115 22);
+}
+
+/* PDF export always renders light: dark text on white, whatever the UI theme */
+.pdf-export {
+  --bg-color: #ffffff;
+  --text-color: #0f172a;
+  --border-color: #e2e8f0;
+  --toolbar-bg: #f8fafc;
+  --editor-bg: #ffffff;
+  --canvas-bg: #ffffff;
+  color: var(--text-color);
+}
+.pdf-export .ProseMirror {
+  box-shadow: none;
+  border-color: transparent;
+}
+.pdf-export .ProseMirror pre {
+  background-color: #0f172a;
+}
 
 /* CodeMirror overrides */
 .cm-editor {
